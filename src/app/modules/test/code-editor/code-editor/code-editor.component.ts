@@ -20,13 +20,14 @@ export class CodeEditorComponent {
 const languageConf = new Compartment
 
 const autoLanguage = EditorState.transactionExtender.of(tr => {
-  if (!tr.docChanged) return null
+  /* if (!tr.docChanged) return null
   let docIsHTML = /^\s*</.test(tr.newDoc.sliceString(0, 100))
   let stateIsHTML = tr.startState.facet(language) == htmlLanguage
   if (docIsHTML == stateIsHTML) return null
   return {
-    effects: languageConf.reconfigure(docIsHTML ? html() : java())
-  }
+    effects: languageConf.reconfigure(docIsHTML ? html() : javascript())
+  } */
+return {  effects: languageConf.reconfigure(javascript() ) }
 })
 
 
