@@ -3,11 +3,13 @@ import {EditorState, Compartment} from "@codemirror/state"
 import {keymap} from "@codemirror/view"
 import {defaultKeymap} from "@codemirror/commands"
 import {basicSetup, EditorView} from "codemirror"
-import {javascript} from "@codemirror/lang-javascript"
+import {esLint, javascript} from "@codemirror/lang-javascript"
 import {java} from "@codemirror/lang-java"
 import {htmlLanguage, html} from "@codemirror/lang-html"
 import {language} from "@codemirror/language"
-import {Diagnostic} from "@codemirror/lint"
+import {linter, Diagnostic} from "@codemirror/lint"
+import {syntaxTree} from "@codemirror/language"
+
 @Component({
   selector: 'app-code-editor',
   templateUrl: './code-editor.component.html',
@@ -27,7 +29,7 @@ const autoLanguage = EditorState.transactionExtender.of(tr => {
   return {
     effects: languageConf.reconfigure(docIsHTML ? html() : javascript())
   } */
-return {  effects: languageConf.reconfigure(javascript() ) }
+return {  effects: languageConf.reconfigure(java() ) }
 })
 
 
@@ -74,13 +76,30 @@ let theme = EditorView.theme({
   },
 })
 
+const regexpLinter = linter(view => {
+  let diagnostics: Diagnostic[] = []
+  syntaxTree(view.state).cursor().iterate(node => {
+    if (node.name == "⚠"){
+      diagnostics.push({
+        from: node.from,
+        to: node.to,
+        severity: "error",
+        message: 'Error!',
+        actions: []
+      })
+    }
+  })
+  return diagnostics
+})
 
 let editor = new EditorView({
+
   extensions: [
     basicSetup,
     languageConf.of(autoLanguage),
     autoLanguage,
-    theme
+    regexpLinter,
+    theme,
   ],
   parent: document.body,
   
